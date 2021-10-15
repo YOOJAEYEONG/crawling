@@ -4,7 +4,7 @@
     JAVA 11
     ChromeDriver 94.0.4606.61
     selenium-chrome-driver 3.141.59
-
+    인텔리제이
 ### 메인페이지 
     localhost:8099
 ---
