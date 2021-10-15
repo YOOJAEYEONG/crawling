@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>셀레니움 크롤링</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <fieldset style="margin: 3%;border: 1px solid cornflowerblue;">
+<!--        <legend>-->
+<!--            검색어에 " " 공백으로 검색어를 여러개 입력가능-->
+<!--        </legend>-->
+        <div class="searchBox" >
+            <span>크롤링대상URL</span>
+            <input type="text" id="url" name="url">
+            <span>검색어:</span>
+            <input type="text" id="searchWords" name="searchWords">
+            <button id="search">검색</button>
+        </div>
+    </fieldset>
+    <div id="result" style="margin: 3%;border: 1px solid cornflowerblue;min-height: 50vh;">
+
+    </div>
+</body>
+<script type="text/javascript">
+    $(function () {
+       $("#url").val(localStorage.getItem("url"));
+    });
+    $('#search').on('click',()=>{
+        localStorage.setItem("url",$("#url").val());
+        let params = {
+            url : $('#url').val()
+            ,searchWords : $('#searchWords').val()
+        }
+        if (!params.url.includes("http")){
+            params.url = "http://"+params.url;
+        }
+        $.ajax({
+            method : 'POST'
+            ,url : '/call/search'
+            ,contentType : 'application/json;charset=UTF-8'
+            ,dataType : 'json'
+            ,data : JSON.stringify(params)
+            ,timeout : 1000 * 60
+            ,beforeSend : function () {
+                $(".searchBox").append("<img class='loading' height='10' src='https://mbdrive.gettyimageskorea.com/common/img/60x60_loading.gif'>");
+            }
+            ,complete : function () {
+                $(".searchBox .loading").remove();
+            }
+            ,success : (d)=>{
+                let tags = "";
+                d.list.forEach(tag =>{
+                    console.log(tag)
+                    tags += "<"+tag.tagName;
+                    for (var tagKey in tag) {
+                        if(tagKey.includes("attribute")){
+                            var attr = tagKey.split("-")[1];
+                            tags += " "+attr+"='"+tag[tagKey]+"' ";
+                        }
+                    }
+                    tags += "style='margin:1%;border-radius:5px;'>";
+                });
+                $('#result').html(tags);
+            }
+            ,error : function (e){
+                console.log(e);
+            }
+        });
+    });
+</script>
+</html>
